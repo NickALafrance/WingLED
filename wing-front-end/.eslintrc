@@ -1,0 +1,83 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true,
+    "jest": true
+  },
+    "parserOptions": {
+      "ecmaVersion": 6,
+      "sourceType": "module",
+      "ecmaFeatures": {
+        "jsx": true,
+        "modules": true,
+        "experimentalObjectRestSpread": true
+      }
+    },
+    "extends": ["eslint:recommended", "google", "plugin:react/recommended", "plugin:jsx-a11y/recommended"],
+    "rules": {
+      "camelcase": ["error", {"properties": "never"}],
+      "jsx-quotes": ["error", "prefer-double"],
+      "linebreak-style": 0,
+      "max-len": [2, {"code": 120, "tabWidth": 4, "ignoreUrls": true}],
+      "object-curly-spacing": ["error", "always"],
+      "react/forbid-prop-types": [2, {"forbid": ["any", "array", "object"]}],
+      "react/require-default-props": [2, {"forbidDefaultForRequired": true}],
+      "no-console": "error",
+      "simple-import-sort/imports": "error",
+      "simple-import-sort/exports": "error",
+      "react/jsx-fragments": 2,
+      "react/jsx-max-props-per-line": [2, { "maximum": 1 }],
+      "react/jsx-uses-react": "off",
+      "react/react-in-jsx-scope": "off",
+      "react/jsx-equals-spacing": [2, "never"]
+    },
+    "ignorePatterns": ["serviceWorker.js", "*.test.js", "*.spec.js"],
+    "plugins": [
+      "react",
+      "jsx-a11y",
+      "simple-import-sort"
+    ],
+    "settings": {
+      "react": {
+        "createClass": "createReactClass", // Regex for Component Factory to use,
+        // default to "createReactClass"
+        "pragma": "React",  // Pragma to use, default to "React"
+        "version": "detect", // React version. "detect" automatically picks the version you have installed.
+        // You can also use `16.0`, `16.3`, etc, if you want to override the detected value.
+        // default to latest and warns if missing
+        // It will default to "detect" in the future
+        "flowVersion": "0.53" // Flow version
+      },
+      "propWrapperFunctions": [
+        // The names of any function used to wrap propTypes, e.g. `forbidExtraProps`. If this isn't set, any propTypes wrapped in a function will be skipped.
+        "forbidExtraProps",
+        {"property": "freeze", "object": "Object"},
+        {"property": "myFavoriteWrapper"}
+      ],
+      "linkComponents": [
+        // Components used as alternatives to <a> for linking, eg. <Link to={ url } />
+        "Hyperlink",
+        {"name": "Link", "linkAttribute": "to"}
+      ]
+    },
+    "globals": {
+      "console": "readonly",
+      "document": "readonly",
+      "window": "readonly",
+      "process": "readonly",
+      "sessionStorage": "readonly",
+      "localStorage": "readonly",
+      "Intl": "readonly",
+      "appConfig": "readonly",
+      "Promise": "readonly",
+      "setTimeout": "readonly",
+      "clearTimeout": "readonly",
+      "DOMParser": "readonly",
+      "Date": "readonly",
+      "FormData": "readonly",
+      "location": "readonly",
+      "ResizeObserver": "readonly",
+      "global": "readonly"
+    }
+  }
+  
