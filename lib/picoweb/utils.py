@@ -1,3 +1,5 @@
+import ujson
+
 def unquote_plus(s):
     # TODO: optimize
     s = s.replace("+", " ")
@@ -8,19 +10,23 @@ def unquote_plus(s):
 def parse_qs(s):
     res = {}
     if s:
-        pairs = s.split("&")
-        for p in pairs:
-            vals = [unquote_plus(x) for x in p.split("=", 1)]
-            if len(vals) == 1:
-                vals.append(True)
-            old = res.get(vals[0])
-            if old is not None:
-                if not isinstance(old, list):
-                    old = [old]
-                    res[vals[0]] = old
-                old.append(vals[1])
-            else:
-                res[vals[0]] = vals[1]
+        try:
+            return ujson.loads(s)
+        except:
+            #Not a JSON string
+            pairs = s.split("&")
+            for p in pairs:
+                vals = [unquote_plus(x) for x in p.split("=", 1)]
+                if len(vals) == 1:
+                    vals.append(True)
+                old = res.get(vals[0])
+                if old is not None:
+                    if not isinstance(old, list):
+                        old = [old]
+                        res[vals[0]] = old
+                    old.append(vals[1])
+                else:
+                    res[vals[0]] = vals[1]
     return res
 
 #print(parse_qs("foo"))

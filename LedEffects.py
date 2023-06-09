@@ -1,67 +1,49 @@
 import array, time
 import uasyncio as asyncio
-from machine import Pin
-import rp2
 from Constants import Colors, MachineSetup
-
-@rp2.asm_pio(sideset_init=rp2.PIO.OUT_LOW, out_shiftdir=rp2.PIO.SHIFT_LEFT, autopull=True, pull_thresh=24)
-def ws2812():
-    T1 = 2
-    T2 = 5
-    T3 = 3
-    wrap_target()
-    label("bitloop")
-    out(x, 1)               .side(0)    [T3 - 1]
-    jmp(not_x, "do_zero")   .side(1)    [T1 - 1]
-    jmp("bitloop")          .side(1)    [T2 - 1]
-    label("do_zero")
-    nop()                   .side(0)    [T2 - 1]
-    wrap()
+import LightStrip
 
 class LedController:
-    # Configure the number of WS2812 LEDs.
-    state = 'test'
-    firstLoop = True
-
     def __init__(self, observer):
         self.observer = observer
+        #configuration
+        self.state = 'test'
+        self.firstLoop = True
         self.colors = (Colors.BLACK, Colors.RED, Colors.YELLOW, Colors.GREEN, Colors.CYAN, Colors.BLUE, Colors.PURPLE, Colors.WHITE)
-        # Create the StateMachine with the ws2812 program, outputting on pin
-        self.sm = rp2.StateMachine(0, ws2812, freq=8_000_000, sideset_base=Pin(MachineSetup.DATA_PIN))
-        # Start the StateMachine, it will wait for data on its FIFO.
-        self.sm.active(1)
-        # Display a pattern on the LEDs via an array of LED RGB values.
-        self.ar = array.array("I", [0 for _ in range(MachineSetup.LED_COUNT)])
+        self.lightStrips = []
+
+        #Create LED lines based on configuration
+        for config in MachineSetup.LINES:
+            self.lightStrips.append(LightStrip.LightStrip(config))
         # register events
-        self.observer.on('state', self.stateChange);
-        self.observer.on('pixel', self.pixelPick);
+        self.observer.on('state', self.stateChange)
+        self.observer.on('pixel', self.pixelPick)
+        self.observer.on('setLight', self.setLight)
 
     def stateChange(self, state):
         print('Now running ' + state)
         self.state = state
 
-    def pixelPick(self, position, r, g, b):
-        color = (int(r), int(g), int(b))
-        print(color)
-        self.pixels_set(int(position), color)
-        print('Setting pixel # ' + position + ' to RGB ', color)
+    def pixelPick(self, strip, position, h, s, v):
+        print('Strip: ', strip, ' Position: ', position, ' HSV: ', h, ' ', s, ' ', v)
+        self.lightStrips[strip].setPixel(position, h, s, v)
 
-    async def pixels_show(self):
-        dimmer_ar = array.array("I", [0 for _ in range(MachineSetup.LED_COUNT)])
-        for i,c in enumerate(self.ar):
-            r = int(((c >> 8) & 0xFF) * MachineSetup.BRIGHTNESS)
-            g = int(((c >> 16) & 0xFF) * MachineSetup.BRIGHTNESS)
-            b = int((c & 0xFF) * MachineSetup.BRIGHTNESS)
-            dimmer_ar[i] = (g<<16) + (r<<8) + b
-        self.sm.put(dimmer_ar, 8)
+    def setLight(self, state):
+        if len(self.lightStrips) > state['strip'] and len(self.lightStrips[state['strip']].lights) > state['position']:
+            target = self.lightStrips[state['strip']].lights[state['position']]
+            target.setHSV(state['hue'], state['saturation'], state['value'])
+            if state.has_key('hertz'):
+                target.hertz = state['hertz']
+
+    async def render(self):
+        for strip in self.lightStrips:
+            strip.render()
         await asyncio.sleep_ms(10)
 
-    def pixels_set(self, position, color):
-        self.ar[position] = (color[1]<<16) + (color[0]<<8) + color[2]
-
-    def pixels_fill(self, color):
-        for i in range(len(self.ar)):
-            self.pixels_set(i, color)
+    def fillColor(self, color):
+        for strip in self.lightStrips:
+            for light in strip.lights:
+                light.setHSV(color[0], color[1], color[2])
 
     async def color_chase(self, color):
         for i in range(MachineSetup.LED_COUNT):
@@ -92,8 +74,8 @@ class LedController:
 
     async def fill(self):
         for color in self.colors:
-            self.pixels_fill(color)
-            await self.pixels_show()
+            self.fillColor(color)
+            await self.render()
             await asyncio.sleep(0.2)
 
     async def chase(self):
@@ -106,9 +88,9 @@ class LedController:
     async def test(self):
         if self.firstLoop:
             print('Red Fill')
-            self.pixels_fill(Colors.RED)
+            self.fillColor(Colors.RED)
             self.firstLoop = False
-        await self.pixels_show()
+        await self.render()
         await asyncio.sleep(1)
 
     async def run(self):

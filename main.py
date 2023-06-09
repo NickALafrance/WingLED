@@ -1,10 +1,10 @@
-import LedEffects
+from LedEffects import LedController
 import Server
 import Observable
 import uasyncio as asyncio
 
 Observer = Observable.Observable()
-Controller = LedEffects.LedController(Observer)
+Controller = LedController(Observer)
 Serv = Server.Server(Observer)
 
 async def main():
