@@ -3,7 +3,7 @@ import uasyncio as asyncio
 from Constants import Colors, MachineSetup
 import LightStrip
 
-class LedController:
+class LedEffects:
     def __init__(self, observer):
         self.observer = observer
         #configuration
@@ -17,28 +17,24 @@ class LedController:
             self.lightStrips.append(LightStrip.LightStrip(config))
         # register events
         self.observer.on('state', self.stateChange)
-        self.observer.on('pixel', self.pixelPick)
         self.observer.on('setLight', self.setLight)
 
     def stateChange(self, state):
         print('Now running ' + state)
         self.state = state
 
-    def pixelPick(self, strip, position, h, s, v):
-        print('Strip: ', strip, ' Position: ', position, ' HSV: ', h, ' ', s, ' ', v)
-        self.lightStrips[strip].setPixel(position, h, s, v)
-
     def setLight(self, state):
         if len(self.lightStrips) > state['strip'] and len(self.lightStrips[state['strip']].lights) > state['position']:
             target = self.lightStrips[state['strip']].lights[state['position']]
-            target.setHSV(state['hue'], state['saturation'], state['value'])
-            if state.has_key('hertz'):
-                target.hertz = state['hertz']
+            target.setHSV(state.get('hue', 0), state.get('saturation', 1), state.get('value', 1))
+            target.bpm = state.get('bpm', 10)
+            target.setStrategy(state.get('updateOptions', {}))
 
-    async def render(self):
+    def render(self, heartBeat):
         for strip in self.lightStrips:
-            strip.render()
-        await asyncio.sleep_ms(10)
+            strip.update(heartBeat)
+        for strip in self.lightStrips:
+            strip.write()
 
     def fillColor(self, color):
         for strip in self.lightStrips:
@@ -95,12 +91,12 @@ class LedController:
 
     async def run(self):
         self.exit = True
+        heartBeat = 0
+        msPerLoop = (60000 / MachineSetup.FREQUENCY) / 1000
+
         while self.exit:
-            if self.state == 'rainbow':
-                await self.rainbow()
-            elif self.state ==  'chase':
-                await self.chase()
-            elif self.state == 'fill':
-                await self.fill()
-            elif self.state == 'test':
-                await self.test()
+            start = time.time()
+            self.render(heartBeat)
+            heartBeat = (heartBeat + 1) % MachineSetup.FREQUENCY
+            end = time.time()
+            await asyncio.sleep(msPerLoop - (end - start))

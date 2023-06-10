@@ -12,7 +12,6 @@ class Server:
         self.wifi = Wifi
         ROUTES = [
             ("/", self.index),
-            ("/pixel", self.pixel),
             ("/set-light", self.setLight)
         ]
         self.app = picoweb.WebApp('picoweb', ROUTES)
@@ -68,12 +67,6 @@ class Server:
         self.observer.trigger('state', state)
         yield from picoweb.start_response(resp)
         yield from resp.awrite(self.html(state))
-
-    def pixel(self, req, resp):
-        req.parse_qs()
-        self.observer.trigger('pixel', req.form["position"], req.form["r"], req.form["g"], req.form["b"])
-        yield from picoweb.start_response(resp)
-        yield from resp.awrite(self.html('test'))
         
     def setLight(self, req, resp):
         yield from req.read_form_data()

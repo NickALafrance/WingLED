@@ -12,10 +12,13 @@ class LightStrip:
         # Display a pattern on the LEDs via an array of LED RGB values.
         self.lights = [(Light.Light()) for _ in range(config.LED_COUNT)]
 
-    def render(self):
+    def update(self, heartBeat):
         dimmer_ar = array.array("I", [0 for _ in range(self.count)])
         for i,led in enumerate(self.lights):
+            led.update(heartBeat)
             self.ws[i] = led.getRGB()
+
+    def write(self):
         self.ws.write()
 
     def setPixel(self, position, h, s, v):

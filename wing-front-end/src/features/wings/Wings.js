@@ -6,6 +6,7 @@ import './wings.css';
  */
 function Wings() {
   return (<div className="wings">
+
   </div>);
 }
 
