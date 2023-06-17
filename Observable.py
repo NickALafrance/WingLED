@@ -87,7 +87,7 @@ class Observable:
         """Triggers all handlers which are subscribed to an event.
         Returns True when there were callbacks to execute, False otherwise."""
 
-        callbacks = self._events[event]
+        callbacks = self._events.get(event, False)
         if not callbacks:
             return False
 

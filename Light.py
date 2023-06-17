@@ -3,18 +3,14 @@ from Constants import MachineSetup
 from updateStrategies.Factory import UpdateStrategyFactory
 
 class Light:
-    def __init__(self):
-        self.nextLight = None
-        self.previousLight = None
-
+    def __init__(self, position):
+        self.position = position
         self.brightness = 1
-        
-        self.updateFrequency = 10
-        
+
         self.hue = 0
         self.saturation = 1
         self.value = 1
-        
+
         self.updateStrategy = UpdateStrategyFactory({}, self)
 
     #Progress the light one step using the update strategy
@@ -39,14 +35,14 @@ class Light:
 
     @property
     def bpm(self):
-        return MachineSetup.FREQUENCY / self.updateFrequency
+        return MachineSetup.FREQUENCY / self.updateStrategy.updateFrequency
 
     #BPM must be a multiple of MachineSetup.FREQUENCY
     @bpm.setter
     def bpm(self, bpm):
         if bpm > MachineSetup.FREQUENCY or MachineSetup.FREQUENCY % bpm:
             raise Exception("Provided beat per minute is not a multiple of the machine frequency")
-        self.updateFrequency = int(MachineSetup.FREQUENCY / bpm)
+        self.updateStrategy.updateFrequency = int(MachineSetup.FREQUENCY / bpm)
 
     def setStrategy(self, options):
         del self.updateStrategy
