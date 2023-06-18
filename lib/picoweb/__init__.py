@@ -67,6 +67,7 @@ def http_error(writer, status):
 class HTTPRequest:
 
     def __init__(self):
+        self.form = None
         pass
 
     def read_form_data(self):

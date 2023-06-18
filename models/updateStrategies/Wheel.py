@@ -1,4 +1,4 @@
-from updateStrategies.UpdateStrategyInterface import UpdateStrategyInterface
+from models.updateStrategies.UpdateStrategyInterface import UpdateStrategyInterface
 
 # This strategy will JUMP the color of a light with the next color every update cycle.
 # It uses ONE option, which is COLORS.

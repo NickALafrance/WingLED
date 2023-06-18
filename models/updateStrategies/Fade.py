@@ -1,4 +1,4 @@
-from updateStrategies.UpdateStrategyInterface import UpdateStrategyInterface
+from models.updateStrategies.UpdateStrategyInterface import UpdateStrategyInterface
 
 # This strategy will fade the current color to the next color, making one step per BPM towards the next color.
 # It uses four parameters, colors, function, stepCount, and clockwise

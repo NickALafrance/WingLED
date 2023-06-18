@@ -1,7 +1,7 @@
-from updateStrategies.Wheel import Wheel
-from updateStrategies.Null import Null
-from updateStrategies.Jump import Jump
-from updateStrategies.Fade import Fade
+from models.updateStrategies.Wheel import Wheel
+from models.updateStrategies.Null import Null
+from models.updateStrategies.Jump import Jump
+from models.updateStrategies.Fade import Fade
 
 strategies = {
     "Wheel": Wheel,

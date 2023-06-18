@@ -95,3 +95,6 @@ class Observable:
             print(callback)
             callback(*args, **kw)
         return True
+    
+    def reset(self):
+        self._events = {}

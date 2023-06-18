@@ -1,15 +1,17 @@
-import LedEffects
-import Server
-import Observable
+from models.LedEffects import LedEffects
+from controller.Server import Server
+from lib.observable import Observer
+from views import Views
 import uasyncio as asyncio
 
-Observer = Observable.Observable()
-Controller = LedEffects.LedEffects(Observer)
-Serv = Server.Server(Observer)
+Observer.reset()
+Model = LedEffects()
+Controller = Server()
+View = Views()
 
 async def main():
-    asyncio.create_task(Controller.run())
-    Serv.run()
+    asyncio.create_task(Model.run())
+    Controller.run()
     while True:
         await asyncio.sleep(100)
 

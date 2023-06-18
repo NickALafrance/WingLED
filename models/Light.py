@@ -1,6 +1,6 @@
 import lib.colorsys.__init__ as colorsys
 from Constants import MachineSetup
-from updateStrategies.Factory import UpdateStrategyFactory
+from models.updateStrategies.Factory import UpdateStrategyFactory
 
 class Light:
     def __init__(self, position):

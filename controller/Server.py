@@ -4,16 +4,12 @@ import time
 import re
 from Constants import Wifi, Logs
 import lib.picoweb.__init__ as picoweb
-
-class WebEvent:
-    def __init__(self, requestData):
-        self.requestData = requestData
-        self.responseData = { "OK": True }
+from lib.observable import Observer
+from controller.WebEvent import WebEvent
 
 class Server:
-    def __init__(self, observer):
+    def __init__(self):
         self.connectToWifi()
-        self.observer = observer
         self.wifi = Wifi
         ROUTES = [
             ("/", self.index),
@@ -45,77 +41,57 @@ class Server:
             log=Logs.WEBLOG
         )
 
-    def html(self, state):
-        # html code ...
-     html = """
-     <html>
-     <head>
-     <title>Pico W Web Server</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-     <link rel="icon" href="data:,">
-     <style>
-     html{font-family: Helvetica; display:inline-block; margin: 0px auto; textalign: center;}
-     h1{color: #0F3376; padding: 2vh;}
-     p{font-size: 1.5rem;}
-     button{display: inline-block; background-color: #4286f4; border: none;borderradius: 4px; color: white; padding: 16px 40px; text-decoration: none; font-size: 30px; margin:
-    2px; cursor: pointer;}
-     button2{background-color: #4286f4;}
-     </style>
-     </head>
-     <body> <h1>Pico W Web Server</h1>
-     <p>GPIO state: <strong>""" + state + """</strong></p>
-     <p><a href="/?state=rainbow"><button class="button">rainbow</button></a></p>
-     <p><a href="/?state=fill"><button class="button button2">fill</button></a></p>
-     <p><a href="/?state=chase"><button class="button button2">chase</button></a></p>
-     </body>
-     </html>
-     """
-     return html
+    def makeEvent(self, req):
+        if req.method != 'GET':
+            yield from req.read_form_data()
+        else:
+            req.parse_qs()
+        return WebEvent(req)
 
     def index(self, req, resp):
-        req.parse_qs()
+        event = WebEvent(req)
+        Observer.trigger('index', event)
         yield from picoweb.start_response(resp)
-        yield from resp.awrite(self.html('N/A'))
+        yield from resp.awrite(event.responseData)
 
     def disconnect(self, req, resp):
         self.station.disconnect()
-        event = WebEvent(req.form)
-        self.observer.trigger('disconnect', event)
+        event = WebEvent(req)
+        Observer.trigger('disconnect', event)
         yield from picoweb.jsonify(resp, event.responseData)
 
     def strips(self, req, resp):
-        yield from req.read_form_data()
-        event = WebEvent(req.form)
-        self.observer.trigger('strips', event)
+        event = yield from self.makeEvent(req)
+        Observer.trigger('strips', event)
         yield from picoweb.jsonify(resp, event.responseData)
 
     def strip(self, req, resp):
         print(req.path, ' | ', req.method)
         yield from req.read_form_data()
         event = WebEvent(req.form)
-        self.observer.trigger('strips', event)
+        Observer.trigger('strips', event)
         yield from picoweb.jsonify(resp, event.responseData)
 
     def stripLights(self, req, resp):
         yield from req.read_form_data()
         event = WebEvent(req.form)
-        self.observer.trigger('stripLights', event)
+        Observer.trigger('stripLights', event)
         yield from picoweb.jsonify(resp, event.responseData)
 
     def stripLight(self, req, resp):
         yield from req.read_form_data()
         event = WebEvent(req.form)
-        self.observer.trigger('stripLights', event)
+        Observer.trigger('stripLights', event)
         yield from picoweb.jsonify(resp, event.responseData)
 
     def lights(self, req, resp):
         yield from req.read_form_data()
         event = WebEvent(req.form)
-        self.observer.trigger('lights', event)
+        Observer.trigger('lights', event)
         yield from picoweb.jsonify(resp, event.responseData)
 
     def light(self, req, resp):
         yield from req.read_form_data()
         event = WebEvent(req.form)
-        self.observer.trigger('lights', event)
+        Observer.trigger('lights', event)
         yield from picoweb.jsonify(resp, event.responseData)

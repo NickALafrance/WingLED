@@ -1,4 +1,4 @@
-from updateStrategies.UpdateStrategyInterface import UpdateStrategyInterface
+from models.updateStrategies.UpdateStrategyInterface import UpdateStrategyInterface
 
 class Null(UpdateStrategyInterface):
     def shouldUpdate(self, t):

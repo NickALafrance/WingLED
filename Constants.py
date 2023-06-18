@@ -11,11 +11,15 @@ class ColorConstants:
     WHITE = (0, 0, 1)
 
 class WifiConstants:
-    SSID = 'Firedactyle'
-    PASSWORD = 'Amethyst0508'
-    HOST = '192.168.1.222'
-    PORT = 80
-    TIMEOUT = 20
+    def __init__(self):
+        self.SSID = 'Firedactyle'
+        self.PASSWORD = 'Amethyst0508'
+        self.HOST = '192.168.1.222'
+        self.PORT = 80
+        self.TIMEOUT = 20
+
+    def baseURL(self):
+        return self.HOST + ':' + str(self.PORT) + '/'
     
 class Line:
     def __init__(self, pin, count, brightness):
