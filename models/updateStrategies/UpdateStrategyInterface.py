@@ -17,6 +17,7 @@ class UpdateStrategyInterface:
         self.options = options
         self.updateFrequency = options.get('updateFrequency', 10)
         self.updateOffset = options.get('updateOffset', 0)
+        self.type = options.get('type', 'Null')
         self.init()
     # sub classes can init too
     def init(self):
@@ -28,3 +29,11 @@ class UpdateStrategyInterface:
     #Return next HSV for a light.
     def getNextColor(self):
         return [self.light.hue, self.light.saturation, self.light.value]
+    def serialize(self):
+        v = self.__dict__
+        updateStrategy = {}
+        for key in v:
+            updateStrategy.update({ key: v[key] })
+        updateStrategy.pop('light')
+        updateStrategy.pop('options')
+        return updateStrategy

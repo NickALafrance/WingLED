@@ -1,9 +1,11 @@
 import lib.colorsys.__init__ as colorsys
 from Constants import MachineSetup
 from models.updateStrategies.Factory import UpdateStrategyFactory
+from lib.observable import Observer
 
 class Light:
-    def __init__(self, position):
+    def __init__(self, strip, position):
+        self.strip = strip
         self.position = position
         self.brightness = 1
 
@@ -12,6 +14,13 @@ class Light:
         self.value = 1
 
         self.updateStrategy = UpdateStrategyFactory({}, self)
+        Observer.on('strips/' + str(self.strip.position) + '/lights/' + str(self.position), self.light)
+
+    def light(self, event):
+        if event.isRead():
+            event.modelData = self
+        if event.isWrite():
+            self.deserialize(event.requestData)
 
     #Progress the light one step using the update strategy
     def update(self, heartBeat):
@@ -47,3 +56,19 @@ class Light:
     def setStrategy(self, options):
         del self.updateStrategy
         self.updateStrategy = UpdateStrategyFactory(options, self)
+
+    def serialize(self):
+        return {
+            'hue': self.hue,
+            'saturation': self.saturation,
+            'value': self.value,
+            'position': self.position,
+            'strip': self.strip.position,
+            'updateStrategy': self.updateStrategy.serialize()
+        }
+
+    def deserialize(self, serialization):
+        self.hue = serialization['hue']
+        self.saturation = serialization['saturation']
+        self.value = serialization['value']
+        self.setStrategy(serialization['updateStrategy'])

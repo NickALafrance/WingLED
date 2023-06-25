@@ -9,7 +9,7 @@ class WebEvent:
     def isRead(self):
         return self.method == 'GET'
     def isWrite(self):
-        return self.method == 'POST'
+        return self.method == 'POST' or self.method == 'PUT'
 
     def getIdFromPath(self):
         pieces = self.path.split('/')

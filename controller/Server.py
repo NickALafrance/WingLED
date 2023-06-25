@@ -14,11 +14,11 @@ class Server:
         ROUTES = [
             ("/", self.index),
             ("/strips", self.strips),
-            (re.compile("\/strips\/\d+"), self.strip),
-            (re.compile("\/strips\/\d+\/lights"), self.stripLights),
-            (re.compile("\/strips\/\d+\/lights/\d+"), self.stripLight),
+            (re.compile("\/strips\/\d+\/?$"), self.strip),
+            (re.compile("\/strips\/\d+\/lights\/?$"), self.stripLights),
+            (re.compile("\/strips\/\d+\/lights\/\d+\/?$"), self.stripLight),
             ("/lights", self.lights),
-            (re.compile("\/lights\/\d+"), self.light),
+            (re.compile("\/lights\/\d+\/?$"), self.light),
             ("/disconnect", self.disconnect)
         ]
         self.app = picoweb.WebApp('picoweb', ROUTES)
@@ -66,32 +66,29 @@ class Server:
         yield from picoweb.jsonify(resp, event.responseData)
 
     def strip(self, req, resp):
-        print(req.path, ' | ', req.method)
-        yield from req.read_form_data()
-        event = WebEvent(req.form)
-        Observer.trigger('strips', event)
+        event = yield from self.makeEvent(req)
+        Observer.trigger('strips/' + str(event.getIdFromPath()), event)
+        Observer.trigger('strip', event)
         yield from picoweb.jsonify(resp, event.responseData)
 
     def stripLights(self, req, resp):
-        yield from req.read_form_data()
-        event = WebEvent(req.form)
-        Observer.trigger('stripLights', event)
+        event = yield from self.makeEvent(req)
+        Observer.trigger('strips/' + str(event.getIdFromPath()), event)
+        Observer.trigger('strip', event)
         yield from picoweb.jsonify(resp, event.responseData)
 
     def stripLight(self, req, resp):
-        yield from req.read_form_data()
-        event = WebEvent(req.form)
-        Observer.trigger('stripLights', event)
+        event = yield from self.makeEvent(req)
+        Observer.trigger('strips/' + str(event.getIdFromPath()) + '/lights/' + str(event.getSecondIdFromPath()), event)
+        Observer.trigger('light', event)
         yield from picoweb.jsonify(resp, event.responseData)
 
     def lights(self, req, resp):
-        yield from req.read_form_data()
-        event = WebEvent(req.form)
+        event = yield from self.makeEvent(req)
         Observer.trigger('lights', event)
         yield from picoweb.jsonify(resp, event.responseData)
 
     def light(self, req, resp):
-        yield from req.read_form_data()
-        event = WebEvent(req.form)
+        event = yield from self.makeEvent(req)
         Observer.trigger('lights', event)
         yield from picoweb.jsonify(resp, event.responseData)

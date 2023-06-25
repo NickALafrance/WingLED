@@ -12,8 +12,8 @@ class LedEffects:
         self.lightStrips = []
 
         #Create LED lines based on configuration
-        for config in MachineSetup.LINES:
-            self.lightStrips.append(LightStrip(config))
+        for i, config in enumerate(MachineSetup.LINES):
+            self.lightStrips.append(LightStrip(config, i))
         # register events
         Observer.on('strips', self.strips)
 
