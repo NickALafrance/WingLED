@@ -1,6 +1,6 @@
 import array, time
 import uasyncio as asyncio
-from Constants import Colors, MachineSetup
+from Constants import MachineSetup
 from models.LightStrip import LightStrip
 from lib.observable import Observer
 
@@ -8,7 +8,6 @@ class LedEffects:
     def __init__(self):
         #configuration
         self.firstLoop = True
-        self.colors = (Colors.BLACK, Colors.RED, Colors.YELLOW, Colors.GREEN, Colors.CYAN, Colors.BLUE, Colors.PURPLE, Colors.WHITE)
         self.lightStrips = []
 
         #Create LED lines based on configuration
@@ -16,10 +15,14 @@ class LedEffects:
             self.lightStrips.append(LightStrip(config, i))
         # register events
         Observer.on('strips', self.strips)
+        Observer.on('reset', self.end)
 
     def strips(self, event):
         if event.isRead():
             event.modelData = self.lightStrips
+
+    def end(self):
+        self.exit = False
 
     def render(self, heartBeat):
         for strip in self.lightStrips:

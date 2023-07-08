@@ -97,4 +97,5 @@ class Observable:
         return True
     
     def reset(self):
+        self.trigger('reset', 'Resetting')
         self._events = {}

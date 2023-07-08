@@ -9,10 +9,12 @@ Model = LedEffects()
 Controller = Server()
 View = Views()
 
-async def main():
-    asyncio.create_task(Model.run())
-    Controller.run()
-    while True:
-        await asyncio.sleep(100)
+def reset():
+    loop = asyncio.get_event_loop()
+    loop.stop()
+    loop.close()
 
-asyncio.run(main())
+loop = asyncio.get_event_loop()
+loop.create_task(Model.run())
+Observer.on('reset', reset)
+Controller.run()

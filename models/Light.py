@@ -32,9 +32,9 @@ class Light:
     def getRGB(self):
         rgb = colorsys.hsv_to_rgb(self.hue / 360, self.saturation, self.value, 1)
         return [
-            int(rgb[0] * 255 * self.brightness),
-            int(rgb[1] * 255 * self.brightness),
-            int(rgb[2] * 255 * self.brightness)
+            int(rgb[0] * 255 * min(self.brightness, self.strip.brightness)),
+            int(rgb[1] * 255 * min(self.brightness, self.strip.brightness)),
+            int(rgb[2] * 255 * min(self.brightness, self.strip.brightness))
         ]
 
     def setHSV(self, h, s, v):

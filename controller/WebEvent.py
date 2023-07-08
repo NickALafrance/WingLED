@@ -22,3 +22,9 @@ class WebEvent:
         if len(pieces) > 4:
             return int(pieces[4])
         return False
+
+    def getVerb(self):
+        pieces = self.path.split('/')
+        if len(pieces) > 4:
+            return pieces[4]
+        return False

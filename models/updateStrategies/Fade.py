@@ -57,7 +57,7 @@ class Fade(UpdateStrategyInterface):
         if self.step == 1:
             self.step = 0
             self.currentColor = self.targetColor
-            self.targetColor = self.options['colors'][1 + self.options['colors'].index(self.currentColor) % len(self.options['colors'])]
+            self.targetColor = self.options['colors'][(1 + self.options['colors'].index(self.currentColor)) % len(self.options['colors'])]
         return [hue, saturation, value]
 
     def gaussian(self):

@@ -17,6 +17,7 @@ class Server:
             (re.compile("\/strips\/\d+\/?$"), self.strip),
             (re.compile("\/strips\/\d+\/lights\/?$"), self.stripLights),
             (re.compile("\/strips\/\d+\/lights\/\d+\/?$"), self.stripLight),
+            (re.compile("\/strips\/\d+\/lights\/\w+\/?"), self.patch),
             ("/lights", self.lights),
             (re.compile("\/lights\/\d+\/?$"), self.light),
             ("/disconnect", self.disconnect)
@@ -91,4 +92,9 @@ class Server:
     def light(self, req, resp):
         event = yield from self.makeEvent(req)
         Observer.trigger('lights', event)
+        yield from picoweb.jsonify(resp, event.responseData)
+
+    def patch(self, req, resp):
+        event = yield from self.makeEvent(req)
+        Observer.trigger('strips/' + str(event.getIdFromPath()) + '/lights', event)
         yield from picoweb.jsonify(resp, event.responseData)
