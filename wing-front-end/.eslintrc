@@ -1,11 +1,11 @@
 {
   "env": {
     "browser": true,
-    "es2021": true,
+    "es6": true,
     "jest": true
   },
     "parserOptions": {
-      "ecmaVersion": 6,
+      "ecmaVersion": 11,
       "sourceType": "module",
       "ecmaFeatures": {
         "jsx": true,
@@ -16,6 +16,7 @@
     "extends": ["eslint:recommended", "google", "plugin:react/recommended", "plugin:jsx-a11y/recommended"],
     "rules": {
       "camelcase": ["error", {"properties": "never"}],
+      "indent": ["error", 4],
       "jsx-quotes": ["error", "prefer-double"],
       "linebreak-style": 0,
       "max-len": [2, {"code": 120, "tabWidth": 4, "ignoreUrls": true}],

@@ -5,11 +5,11 @@ import Wings from './features/wings/Wings';
  * @return {JSX.Element}
  */
 function App() {
-  return (
-    <div className="App">
-      <Wings />
-    </div>
-  );
+    return (
+        <div className="App">
+            <Wings />
+        </div>
+    );
 }
 
 export default App;

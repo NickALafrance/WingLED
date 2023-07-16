@@ -5,9 +5,9 @@ import './wings.css';
  * @return {JSX.Element}
  */
 function Wings() {
-  return (<div className="wings">
+    return (<div className="wings">
 
-  </div>);
+    </div>);
 }
 
 export default Wings;
