@@ -8,6 +8,7 @@ from lib.observable import Observer
 from controller.WebEvent import WebEvent
 
 class Server:
+    
     def __init__(self):
         self.connectToWifi()
         self.wifi = Wifi
@@ -43,9 +44,9 @@ class Server:
         )
 
     def makeEvent(self, req):
-        if req.method != 'GET':
+        if req.method == 'PUT' or req.method == 'POST':
             yield from req.read_form_data()
-        else:
+        elif req.method == 'GET':
             req.parse_qs()
         return WebEvent(req)
 
@@ -59,42 +60,42 @@ class Server:
         self.station.disconnect()
         event = WebEvent(req)
         Observer.trigger('disconnect', event)
-        yield from picoweb.jsonify(resp, event.responseData)
+        yield from picoweb.jsonify(resp, event.responseData, event.headers)
 
     def strips(self, req, resp):
         event = yield from self.makeEvent(req)
         Observer.trigger('strips', event)
-        yield from picoweb.jsonify(resp, event.responseData)
+        yield from picoweb.jsonify(resp, event.responseData, event.headers)
 
     def strip(self, req, resp):
         event = yield from self.makeEvent(req)
         Observer.trigger('strips/' + str(event.getIdFromPath()), event)
         Observer.trigger('strip', event)
-        yield from picoweb.jsonify(resp, event.responseData)
+        yield from picoweb.jsonify(resp, event.responseData, event.headers)
 
     def stripLights(self, req, resp):
         event = yield from self.makeEvent(req)
         Observer.trigger('strips/' + str(event.getIdFromPath()), event)
         Observer.trigger('strip', event)
-        yield from picoweb.jsonify(resp, event.responseData)
+        yield from picoweb.jsonify(resp, event.responseData, event.headers)
 
     def stripLight(self, req, resp):
         event = yield from self.makeEvent(req)
         Observer.trigger('strips/' + str(event.getIdFromPath()) + '/lights/' + str(event.getSecondIdFromPath()), event)
         Observer.trigger('light', event)
-        yield from picoweb.jsonify(resp, event.responseData)
+        yield from picoweb.jsonify(resp, event.responseData, event.headers)
 
     def lights(self, req, resp):
         event = yield from self.makeEvent(req)
         Observer.trigger('lights', event)
-        yield from picoweb.jsonify(resp, event.responseData)
+        yield from picoweb.jsonify(resp, event.responseData, event.headers)
 
     def light(self, req, resp):
         event = yield from self.makeEvent(req)
         Observer.trigger('lights', event)
-        yield from picoweb.jsonify(resp, event.responseData)
+        yield from picoweb.jsonify(resp, event.responseData, event.headers)
 
     def patch(self, req, resp):
         event = yield from self.makeEvent(req)
         Observer.trigger('strips/' + str(event.getIdFromPath()) + '/lights', event)
-        yield from picoweb.jsonify(resp, event.responseData)
+        yield from picoweb.jsonify(resp, event.responseData, event.headers)

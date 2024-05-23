@@ -36,9 +36,9 @@ def sendstream(writer, f):
         yield from writer.awrite(buf, 0, l)
 
 
-def jsonify(writer, dict):
+def jsonify(writer, dict, headers=None):
     import ujson
-    yield from start_response(writer, "application/json")
+    yield from start_response(writer, "application/json", "200", headers)
     yield from writer.awrite(ujson.dumps(dict))
 
 def start_response(writer, content_type="text/html; charset=utf-8", status="200", headers=None):

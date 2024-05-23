@@ -13,9 +13,17 @@ from models.updateStrategies.UpdateStrategyInterface import UpdateStrategyInterf
 #     ]
 # }
 class Jump(UpdateStrategyInterface):
+    def init(self):
+        self.currentColor = 0
+
     def getNextColor(self):
-        try:
-            color = self.options['colors'][1 + self.options['colors'].index([self.light.hue, self.light.saturation, self.light.value]) % len(self.options['colors'])]
+            color = self.options['colors'][self.currentColor % len(self.options['colors'])]
+            self.currentColor += 1
             return color
-        except:
-            return self.options['colors'][0]
+    def shouldStart(self, t):
+        return t % (len(self.options['colors']) * self.updateFrequency + self.updateOffset) == 0
+    def serialize(self):
+        obj = super().serialize()
+        obj.pop('currentColor')
+        obj.update({'colors': self.options['colors']})
+        return obj

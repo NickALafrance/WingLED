@@ -2,18 +2,9 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 import { fetchWing } from './wingAPI';
 
-/**
- * fetch wing data from API
- * @return {object}
- */
-async function fetchWingFn() {
-    const response = await fetchWing();
-    return response.data;
-}
-
-export const fetchWingThunk = createAsyncThunk(
+export const fetchWingAction = createAsyncThunk(
     'wings/fetchWing',
-    fetchWingFn,
+    fetchWing,
 );
 
 const wingSlice = createSlice({
@@ -26,10 +17,10 @@ const wingSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            .addCase(fetchWingThunk.pending, (state) => {
+            .addCase(fetchWingAction.pending, (state) => {
                 state.status = 'loading';
             })
-            .addCase(fetchWingThunk.fulfilled, (state, action) => {
+            .addCase(fetchWingAction.fulfilled, (state, action) => {
                 state.status = 'idle';
                 state.data = action.payload;
             });

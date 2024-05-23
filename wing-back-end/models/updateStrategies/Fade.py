@@ -21,10 +21,10 @@ from models.updateStrategies.UpdateStrategyInterface import UpdateStrategyInterf
 
 class Fade(UpdateStrategyInterface):
     def init(self):
-        self.currentColor = self.options['colors'][0]
-        self.stepAmount = 1 / self.options.get('steps', 10)
-        self.step = 0
-        self.targetColor = self.options['colors'][1]
+        self.currentColor = -1
+        self.step = self.options.get('steps', 10) - 1
+        
+        self.steps = self.options.get('steps', 10)
         self.clockwise = self.options.get('clockwise', True)
         function = self.options.get('function', 'linear')
         self.isLinear = function == 'linear'
@@ -38,27 +38,56 @@ class Fade(UpdateStrategyInterface):
         return self.linear()
 
     def linear(self):
-        self.step = self.step + self.stepAmount
-        currentHue = self.currentColor[0]
-        targetHue = self.targetColor[0]
-        hue = 0
-        if self.clockwise:
-            if currentHue > targetHue:
-                targetHue += 360
-            hue = (currentHue + (targetHue - currentHue) * self.step) % 360
-        else:
-            if currentHue < self.targetColor[0]:
-                currentHue += 360
-            hue = (currentHue - (currentHue - targetHue) * self.step) % 360
-
-        saturation = self.currentColor[1] + ((self.currentColor[1] - self.targetColor[1]) * self.step)
-        value = self.currentColor[2] + ((self.currentColor[2] - self.targetColor[2]) * self.step)
-
-        if self.step == 1:
+        self.step = self.step + 1
+        if self.step == self.steps:
+            self.currentColor += 1
             self.step = 0
-            self.currentColor = self.targetColor
-            self.targetColor = self.options['colors'][(1 + self.options['colors'].index(self.currentColor)) % len(self.options['colors'])]
-        return [hue, saturation, value]
+            return self.options['colors'][self.currentColor % len(self.options['colors'])]
+        c1 = self.options['colors'][self.currentColor % len(self.options['colors'])]
+        c2 = self.options['colors'][(self.currentColor + 1) % len(self.options['colors'])]
+        percent = self.step / self.steps
+        return [
+            self.rotateColor(c1[0], c2[0], percent),
+            self.approach(c1[1], c2[1], percent),
+            self.approach(c1[2], c2[2], percent)
+        ]
 
     def gaussian(self):
         return[0, 1, 1]
+    
+    def shouldStart(self, t):
+        return t % (len(self.options['colors']) * self.updateFrequency * self.steps + self.updateOffset) == 0
+    
+    def approach(self, n1, n2, percent):
+        if n1 == n2:
+            return n1
+        diff = abs(n1 - n2) * percent
+        if n1 > n2:
+            return n1 - diff
+        return n1 + diff
+
+    def rotateColor(self, n1, n2, percent):
+        if n1 == n2:
+            return n1
+        if self.clockwise and n1 > n2:
+            n2 += 360
+        elif not self.clockwise and n1 < n2:
+            n1 += 360
+        if self.clockwise:
+            diff = (n2 - n1) * percent
+            return (n1 + diff) % 360
+        diff = (n1 - n2) * percent
+        return (n1 - diff) % 360
+
+    def serialize(self):
+        obj = super().serialize()
+        obj.pop('step')
+        obj.pop('currentColor')
+        obj.pop('islinear')
+        obj.pop('isGaussian')
+        if (self.isLinear):
+            obj.update({'function': 'linear'})
+        if (self.isGaussian):
+            obj.update({'function': 'gaussian'})
+        obj.update({'colors': self.options['colors']})
+        return obj

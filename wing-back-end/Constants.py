@@ -33,7 +33,7 @@ class Line:
         self.BRIGHTNESS = brightness
 
 class MachineSetupConstants:
-    FREQUENCY = 600
+    FREQUENCY = 120
     def __init__(self):
         self.LINES = [
             Line(18, 8, 0.25)

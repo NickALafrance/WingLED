@@ -1,6 +1,9 @@
+import axios from '../../app/axios';
+
 /**
  * @return {*}
  */
 export async function fetchWing() {
-    return await fetch('/strips');
+    const response = await axios.get('/strips');
+    return response.data;
 }

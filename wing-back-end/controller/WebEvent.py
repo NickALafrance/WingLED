@@ -1,5 +1,6 @@
 class WebEvent:
     def __init__(self, req):
+        self.headers = {'Access-Control-Allow-Origin': "*"}
         self.method = req.method
         self.path = req.path
         self.requestData = req.form
@@ -10,6 +11,8 @@ class WebEvent:
         return self.method == 'GET'
     def isWrite(self):
         return self.method == 'POST' or self.method == 'PUT'
+    def isOptions(self):
+        return self.method == 'OPTIONS'
 
     def getIdFromPath(self):
         pieces = self.path.split('/')
